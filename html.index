@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NITRO X — Built For Speed. Made For Legends.</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#090909',
+                        graphite: '#191919',
+                        surface: '#222222',
+                        titanium: '#BFC3C7',
+                        racingred: '#E63935',
+                        racingredhover: '#d02e2a'
+                    },
+                    fontFamily: {
+                        heading: ['Space Grotesk', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js for 3D car previews / game effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090909;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090909;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E63935;
+        }
+        .glass-panel {
+            background: rgba(25, 25, 25, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-red {
+            box-shadow: 0 0 35px rgba(230, 57, 53, 0.35);
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        @keyframes pulseSlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+            animation: pulseSlow 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-obsidian text-white min-h-screen flex flex-col selection:bg-racingred selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none"></div>
+
+    <!-- Persistent Navigation Bar -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-obsidian/90 backdrop-blur-md border-b border-white/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchPage('home')">
+                <div class="w-10 h-10 rounded bg-racingred flex items-center justify-center font-heading font-bold text-xl italic tracking-tighter glow-red">
+                    NX
+                </div>
+                <div>
+                    <span class="font-heading text-xl font-bold tracking-widest block leading-none">NITRO X</span>
+                    <span class="text-[10px] text-titanium tracking-widest uppercase block mt-1">Apex Racing Platform</span>
+                </div>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden xl:flex items-center space-x-7 text-sm font-medium text-titanium">
+                <button onclick="switchPage('home')" class="nav-link hover:text-white transition-colors py-2 active" data-page="home">Home</button>
+                <button onclick="switchPage('world')" class="nav-link hover:text-white transition-colors py-2" data-page="world">Game World</button>
+                <button onclick="switchPage('collection')" class="nav-link hover:text-white transition-colors py-2" data-page="collection">Showroom</button>
+                <button onclick="switchPage('garage')" class="nav-link hover:text-white transition-colors py-2" data-page="garage">Garage</button>
+                <button onclick="switchPage('modes')" class="nav-link hover:text-white transition-colors py-2" data-page="modes">Racing Modes</button>
+                <button onclick="switchPage('championships')" class="nav-link hover:text-white transition-colors py-2" data-page="championships">Esports</button>
+                <button onclick="switchPage('leaderboard')" class="nav-link hover:text-white transition-colors py-2" data-page="leaderboard">Leaderboard</button>
+                <button onclick="switchPage('dashboard')" class="nav-link hover:text-white transition-colors py-2" data-page="dashboard">Dashboard</button>
+                <button onclick="switchPage('community')" class="nav-link hover:text-white transition-colors py-2" data-page="community">Clubs</button>
+                <button onclick="switchPage('news')" class="nav-link hover:text-white transition-colors py-2" data-page="news">News</button>
+            </nav>
+
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-4">
+                <button onclick="openGameModal()" class="hidden sm:flex items-center space-x-2 bg-racingred hover:bg-racingredhover text-white px-5 py-2.5 rounded font-heading font-semibold uppercase tracking-wider text-sm transition-all shadow-lg glow-red">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Play Now</span>
+                </button>
+                <button onclick="switchPage('login')" class="hidden md:flex items-center space-x-2 bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2.5 rounded font-medium text-sm transition-all border border-white/10">
+                    <i class="fa-regular fa-user"></i>
+                    <span id="nav-user-label">Sign In</span>
+                </button>
+                <button onclick="switchPage('settings')" class="text-titanium hover:text-white p-2.5 rounded bg-graphite/50 hover:bg-graphite transition-all border border-white/10">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="xl:hidden text-titanium hover:text-white p-2.5">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Drawer -->
+        <div id="mobile-menu" class="hidden xl:hidden bg-graphite border-b border-white/10 px-6 py-4 space-y-3">
+            <button onclick="switchPage('home'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Home</button>
+            <button onclick="switchPage('world'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Game World</button>
+            <button onclick="switchPage('collection'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Showroom</button>
+            <button onclick="switchPage('garage'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Garage & Customizer</button>
+            <button onclick="switchPage('modes'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Racing Modes</button>
+            <button onclick="switchPage('championships'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Esports & Tournaments</button>
+            <button onclick="switchPage('leaderboard'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Global Leaderboard</button>
+            <button onclick="switchPage('dashboard'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Player Dashboard</button>
+            <button onclick="switchPage('community'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Racing Clubs</button>
+            <button onclick="switchPage('news'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">News & Updates</button>
+            <button onclick="switchPage('about'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">About Game</button>
+            <button onclick="switchPage('support'); toggleMobileMenu();" class="block w-full text-left py-2 font-medium text-titanium hover:text-white">Support & FAQ</button>
+            <div class="pt-3 border-t border-white/10 flex space-x-3">
+                <button onclick="openGameModal(); toggleMobileMenu();" class="flex-1 bg-racingred text-white py-2 rounded text-center font-heading font-semibold uppercase">Play Now</button>
+                <button onclick="switchPage('login'); toggleMobileMenu();" class="flex-1 bg-graphite border border-white/10 text-white py-2 rounded text-center font-medium">Account</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow pt-20">
+
+        <!-- ================= PAGE 1: HOME ================= -->
+        <div id="page-home" class="page-section">
+            <!-- Hero Section -->
+            <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
+                <!-- Background Image / Cinematic Visual -->
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2000&q=85" alt="Supercar Hero" class="w-full h-full object-cover object-center filter brightness-50 contrast-125 scale-105 animate-pulse-slow">
+                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-obsidian/80 via-transparent to-obsidian/80"></div>
+                </div>
+
+                <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-24">
+                    <div class="inline-flex items-center space-x-2 bg-graphite/80 backdrop-blur border border-white/10 px-4 py-1.5 rounded-full mb-6">
+                        <span class="w-2.5 h-2.5 rounded-full bg-racingred animate-ping"></span>
+                        <span class="text-xs uppercase tracking-widest text-titanium font-semibold">Season 4: Apex Overdrive Live</span>
+                    </div>
+
+                    <h1 class="font-heading text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-white uppercase text-glow mb-6">
+                        Built For Speed.<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-titanium to-racingred">Made For Legends.</span>
+                    </h1>
+
+                    <p class="max-w-2xl mx-auto text-lg sm:text-xl text-titanium font-light mb-10 leading-relaxed">
+                        Push the ultimate limits of high-performance physics, master extreme global circuits, customize legendary hypercars, and write your racing legacy.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button onclick="openGameModal()" class="w-full sm:w-auto bg-racingred hover:bg-racingredhover text-white px-8 py-4 rounded font-heading font-bold text-base uppercase tracking-wider transition-all shadow-xl glow-red flex items-center justify-center space-x-3">
+                            <i class="fa-solid fa-flag-checkered text-lg"></i>
+                            <span>Start Racing</span>
+                        </button>
+                        <button onclick="switchPage('world')" class="w-full sm:w-auto bg-graphite/80 hover:bg-surface text-white border border-white/20 px-8 py-4 rounded font-heading font-bold text-base uppercase tracking-wider transition-all flex items-center justify-center space-x-3">
+                            <i class="fa-solid fa-earth-americas text-lg text-titanium"></i>
+                            <span>Explore The World</span>
+                        </button>
+                    </div>
+
+                    <!-- Live Player Counter -->
+                    <div class="mt-16 inline-flex items-center space-x-4 bg-graphite/60 backdrop-blur px-6 py-3 rounded-xl border border-white/10">
+                        <div class="flex -space-x-2">
+                            <img class="w-8 h-8 rounded-full border-2 border-obsidian" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="User">
+                            <img class="w-8 h-8 rounded-full border-2 border-obsidian" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="User">
+                            <img class="w-8 h-8 rounded-full border-2 border-obsidian" src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=100&q=80" alt="User">
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs text-titanium uppercase tracking-wider">Active Racers Online</div>
+                            <div class="text-sm font-heading font-bold text-white"><span id="live-counter" class="text-racingred">48,291</span> Drivers on Track</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scroll Indicator -->
+                <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-titanium animate-bounce">
+                    <span class="text-[10px] tracking-widest uppercase mb-1">Scroll Down</span>
+                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                </div>
+            </section>
+
+            <!-- Featured Race Section -->
+            <section class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Featured Showdown</span>
+                        <h2 class="font-heading text-4xl sm:text-5xl font-bold uppercase tracking-tight">The Midnight Apex Grand Prix</h2>
+                    </div>
+                    <button onclick="switchPage('championships')" class="mt-4 md:mt-0 text-sm font-semibold text-titanium hover:text-white flex items-center space-x-2 group">
+                        <span>View All Tournaments</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Featured Banner Card -->
+                    <div class="lg:col-span-2 relative rounded-2xl overflow-hidden group min-h-[420px] flex flex-col justify-end p-8 border border-white/10">
+                        <div class="absolute inset-0 z-0">
+                            <img src="https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=1200&q=85" alt="Neon City Race" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
+                        </div>
+                        <div class="relative z-10">
+                            <span class="bg-racingred text-white text-xs font-heading font-bold px-3 py-1 rounded uppercase tracking-wider mb-4 inline-block">High Stakes</span>
+                            <h3 class="font-heading text-3xl font-bold uppercase mb-2">Neon Skyline Elimination</h3>
+                            <p class="text-titanium text-sm max-w-xl mb-6">Race through the rain-soaked neon avenues of Tokyo at 240+ MPH. Avoid civilian traffic, drift the harbor corners, and claim the $50,000 Grand Prize.</p>
+                            <div class="flex flex-wrap items-center gap-4 text-xs font-semibold text-titanium">
+                                <span class="bg-graphite/80 px-3 py-1.5 rounded border border-white/10"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> $50,000 Pool</span>
+                                <span class="bg-graphite/80 px-3 py-1.5 rounded border border-white/10"><i class="fa-solid fa-gauge-high text-racingred mr-2"></i> Class S Hypercars</span>
+                                <span class="bg-graphite/80 px-3 py-1.5 rounded border border-white/10"><i class="fa-solid fa-clock mr-2"></i> Starts in 2h 15m</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Latest Update & Quick Stats -->
+                    <div class="space-y-6 flex flex-col justify-between">
+                        <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs uppercase tracking-widest text-racingred font-heading font-bold">Update v2.4.0</span>
+                                <span class="text-xs text-titanium">May 2026</span>
+                            </div>
+                            <h4 class="font-heading text-xl font-bold mb-2">The Alpine Frost Expansion</h4>
+                            <p class="text-titanium text-sm mb-4">Conquer treacherous icy hairpins, dynamic snowfall physics, and 3 new Italian V12 monsters.</p>
+                            <button onclick="switchPage('news')" class="text-sm font-semibold text-white hover:text-racingred flex items-center space-x-2">
+                                <span>Read Patch Notes</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-graphite to-obsidian">
+                            <h4 class="font-heading text-lg font-bold mb-4 uppercase">Weekly Milestone</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between text-titanium">
+                                    <span>Global Drift Distance</span>
+                                    <span class="text-white font-semibold">4.8M Miles</span>
+                                </div>
+                                <div class="w-full bg-surface rounded-full h-2">
+                                    <div class="bg-racingred h-2 rounded-full" style="width: 78%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-titanium pt-1">
+                                    <span>Goal: 6M Miles</span>
+                                    <span class="text-racingred">78% Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Popular Cars Preview Grid -->
+            <section class="py-20 bg-graphite/30 border-y border-white/10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                        <div>
+                            <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Apex Garage Showcase</span>
+                            <h2 class="font-heading text-4xl sm:text-5xl font-bold uppercase tracking-tight">Most Driven Hypercars</h2>
+                        </div>
+                        <button onclick="switchPage('collection')" class="mt-4 md:mt-0 text-sm font-semibold text-titanium hover:text-white flex items-center space-x-2 group">
+                            <span>Browse Full Showroom</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+
+                    <div id="home-cars-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Community Highlights & Testimonials -->
+            <section class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Driver Community</span>
+                    <h2 class="font-heading text-4xl font-bold uppercase tracking-tight mb-4">Legends of NITRO X</h2>
+                    <p class="text-titanium text-sm">Hear from elite pro racers and club leaders who dominate the global leaderboards.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-panel p-8 rounded-2xl border border-white/10 relative">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-racingred">
+                            <div>
+                                <h4 class="font-heading font-bold text-base">Alex "Vortex" Mercer</h4>
+                                <span class="text-xs text-titanium">Leader of Apex Syndicate</span>
+                            </div>
+                        </div>
+                        <p class="text-titanium text-sm italic">"The handling physics in NITRO X are unmatched. When you hit a perfect drift through the Mountain Pass at 180mph, nothing else compares."</p>
+                    </div>
+                    <div class="glass-panel p-8 rounded-2xl border border-white/10 relative">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-racingred">
+                            <div>
+                                <h4 class="font-heading font-bold text-base">Elena Rostova</h4>
+                                <span class="text-xs text-titanium">Season 3 World Champion</span>
+                            </div>
+                        </div>
+                        <p class="text-titanium text-sm italic">"Customization is insanely deep. Tuning the suspension and aero downforce gave me the exact edge needed to secure the World Championship."</p>
+                    </div>
+                    <div class="glass-panel p-8 rounded-2xl border border-white/10 relative">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-racingred">
+                            <div>
+                                <h4 class="font-heading font-bold text-base">Marcus Thorne</h4>
+                                <span class="text-xs text-titanium">Pro Drift Streamer</span>
+                            </div>
+                        </div>
+                        <p class="text-titanium text-sm italic">"The graphics engine looks like a next-gen cinematic movie. Racing at night in Neon City with ray-traced reflections is breathtaking."</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 2: GAME WORLD ================= -->
+        <div id="page-world" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Open-World Exploration</span>
+                    <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight mb-4">The NITRO X Universe</h1>
+                    <p class="text-titanium text-sm sm:text-base">Explore 6 meticulously crafted open-world environments, each featuring unique terrain, dynamic weather systems, and extreme racing challenges.</p>
+                </div>
+
+                <div id="worlds-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 3: SHOWROOM / COLLECTION ================= -->
+        <div id="page-collection" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Virtual Showroom</span>
+                        <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight">Ultimate Car Collection</h1>
+                    </div>
+                    <div class="mt-6 md:mt-0 flex flex-wrap gap-2" id="category-filters">
+                        <button onclick="filterCars('All')" class="category-btn bg-racingred text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider transition-all">All</button>
+                        <button onclick="filterCars('Supercars')" class="category-btn bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider transition-all">Supercars</button>
+                        <button onclick="filterCars('Hypercars')" class="category-btn bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider transition-all">Hypercars</button>
+                        <button onclick="filterCars('Sports')" class="category-btn bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider transition-all">Sports</button>
+                        <button onclick="filterCars('Drift')" class="category-btn bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider transition-all">Drift</button>
+                        <button onclick="filterCars('Electric')" class="category-btn bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider transition-all">Electric</button>
+                    </div>
+                </div>
+
+                <!-- Cars Grid -->
+                <div id="showroom-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 4: GARAGE & CUSTOMIZER ================= -->
+        <div id="page-garage" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Interactive Virtual Workshop</span>
+                        <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight">Garage & Customizer</h1>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex items-center space-x-3">
+                        <button onclick="switchPage('collection')" class="bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2.5 rounded font-medium text-sm border border-white/10">Browse Showroom</button>
+                        <button onclick="compareCarsModal()" class="bg-racingred hover:bg-racingredhover text-white px-4 py-2.5 rounded font-heading font-semibold text-sm uppercase tracking-wider">Side-by-Side Compare</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- 3D / Canvas Car Preview & Selector -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 id="active-car-name" class="font-heading text-2xl font-bold uppercase">Apex V12 Phantom</h3>
+                                <p id="active-car-category" class="text-xs text-racingred font-semibold uppercase tracking-widest">Hypercar Class</p>
+                            </div>
+                            <select id="garage-car-select" onchange="selectGarageCar(this.value)" class="bg-graphite text-white px-4 py-2 rounded border border-white/10 font-medium text-sm focus:outline-none">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+
+                        <!-- Canvas Viewer Container -->
+                        <div class="relative w-full h-[380px] bg-obsidian rounded-xl overflow-hidden border border-white/10 flex items-center justify-center">
+                            <canvas id="garage-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+                            <div class="absolute bottom-4 left-4 bg-obsidian/80 backdrop-blur px-3 py-1.5 rounded text-xs text-titanium border border-white/10">
+                                <i class="fa-solid fa-arrows-rotate mr-1 text-racingred"></i> Drag to rotate 360° | Scroll to zoom
+                            </div>
+                        </div>
+
+                        <!-- Stats Bars -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+                            <div class="bg-graphite/60 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-titanium uppercase block mb-1">Top Speed</span>
+                                <div class="flex items-end justify-between"><span id="stat-speed" class="font-heading font-bold text-lg">248 MPH</span><span class="text-xs text-racingred font-bold">96/100</span></div>
+                                <div class="w-full bg-surface rounded-full h-1.5 mt-2"><div id="bar-speed" class="bg-racingred h-1.5 rounded-full" style="width: 96%"></div></div>
+                            </div>
+                            <div class="bg-graphite/60 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-titanium uppercase block mb-1">Acceleration</span>
+                                <div class="flex items-end justify-between"><span id="stat-accel" class="font-heading font-bold text-lg">2.1s (0-60)</span><span class="text-xs text-racingred font-bold">98/100</span></div>
+                                <div class="w-full bg-surface rounded-full h-1.5 mt-2"><div id="bar-accel" class="bg-racingred h-1.5 rounded-full" style="width: 98%"></div></div>
+                            </div>
+                            <div class="bg-graphite/60 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-titanium uppercase block mb-1">Handling</span>
+                                <div class="flex items-end justify-between"><span id="stat-handling" class="font-heading font-bold text-lg">94 G</span><span class="text-xs text-racingred font-bold">94/100</span></div>
+                                <div class="w-full bg-surface rounded-full h-1.5 mt-2"><div id="bar-handling" class="bg-racingred h-1.5 rounded-full" style="width: 94%"></div></div>
+                            </div>
+                            <div class="bg-graphite/60 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-titanium uppercase block mb-1">Braking</span>
+                                <div class="flex items-end justify-between"><span id="stat-braking" class="font-heading font-bold text-lg">100ft (60-0)</span><span class="text-xs text-racingred font-bold">92/100</span></div>
+                                <div class="w-full bg-surface rounded-full h-1.5 mt-2"><div id="bar-braking" class="bg-racingred h-1.5 rounded-full" style="width: 92%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customization Control Panel -->
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-heading text-xl font-bold uppercase mb-4 flex items-center justify-between">
+                                <span>Customizer</span>
+                                <i class="fa-solid fa-wand-magic-sparkles text-racingred"></i>
+                            </h3>
+
+                            <div class="space-y-5 text-sm">
+                                <!-- Body Paint -->
+                                <div>
+                                    <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Body Paint & Finish</label>
+                                    <div class="flex items-center space-x-3">
+                                        <button onclick="setCarColor('#E63935')" class="w-8 h-8 rounded-full bg-[#E63935] ring-2 ring-white/50 focus:scale-110 transition-transform"></button>
+                                        <button onclick="setCarColor('#191919')" class="w-8 h-8 rounded-full bg-[#191919] ring-2 ring-white/20 focus:scale-110 transition-transform"></button>
+                                        <button onclick="setCarColor('#FFFFFF')" class="w-8 h-8 rounded-full bg-[#FFFFFF] ring-2 ring-white/20 focus:scale-110 transition-transform"></button>
+                                        <button onclick="setCarColor('#3B82F6')" class="w-8 h-8 rounded-full bg-[#3B82F6] ring-2 ring-white/20 focus:scale-110 transition-transform"></button>
+                                        <button onclick="setCarColor('#10B981')" class="w-8 h-8 rounded-full bg-[#10B981] ring-2 ring-white/20 focus:scale-110 transition-transform"></button>
+                                        <button onclick="setCarColor('#F59E0B')" class="w-8 h-8 rounded-full bg-[#F59E0B] ring-2 ring-white/20 focus:scale-110 transition-transform"></button>
+                                    </div>
+                                </div>
+
+                                <!-- Alloy Wheels -->
+                                <div>
+                                    <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Alloy Wheels</label>
+                                    <select id="mod-wheels" onchange="showToast('Wheel package updated!')" class="w-full bg-graphite text-white px-3 py-2 rounded border border-white/10 text-sm">
+                                        <option>Forge Apex 20" Matte Black</option>
+                                        <option>Titanium Multi-Spoke 21"</option>
+                                        <option>Carbon Aero Blade 19"</option>
+                                        <option>Gold Magnesium Track</option>
+                                    </select>
+                                </div>
+
+                                <!-- Spoilers & Aero -->
+                                <div>
+                                    <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Spoiler & Downforce</label>
+                                    <select id="mod-spoiler" onchange="showToast('Aero downforce adjusted!')" class="w-full bg-graphite text-white px-3 py-2 rounded border border-white/10 text-sm">
+                                        <option>GT Carbon Swan-Neck Wing</option>
+                                        <option>Active Ducktail Lip</option>
+                                        <option>Time Attack Extreme Wing</option>
+                                        <option>Stock Factory Aero</option>
+                                    </select>
+                                </div>
+
+                                <!-- Window Tint & Decals -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Window Tint</label>
+                                        <select class="w-full bg-graphite text-white px-3 py-2 rounded border border-white/10 text-sm">
+                                            <option>50% Limo Dark</option>
+                                            <option>30% Medium</option>
+                                            <option>Clear Stock</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Racing Decals</label>
+                                        <select class="w-full bg-graphite text-white px-3 py-2 rounded border border-white/10 text-sm">
+                                            <option>NITRO X Official Livery</option>
+                                            <option>Vortex Racing Stripes</option>
+                                            <option>Clean Minimalist</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Engine Upgrade Stage -->
+                                <div>
+                                    <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Engine & Turbo Tuning</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button onclick="showToast('Stage 1 ECU Tune Applied')" class="bg-graphite hover:bg-surface border border-white/10 py-2 rounded text-xs font-heading font-bold uppercase text-titanium hover:text-white transition-all">Stage 1</button>
+                                        <button onclick="showToast('Stage 2 Twin-Turbo Upgrade Applied')" class="bg-graphite hover:bg-surface border border-white/10 py-2 rounded text-xs font-heading font-bold uppercase text-titanium hover:text-white transition-all">Stage 2</button>
+                                        <button onclick="showToast('Apex Race Spec Engine Installed!')" class="bg-racingred text-white py-2 rounded text-xs font-heading font-bold uppercase transition-all shadow">Race Spec</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 mt-6 border-t border-white/10">
+                            <button onclick="showToast('Custom setup saved to cloud profile!')" class="w-full bg-racingred hover:bg-racingredhover text-white py-3 rounded font-heading font-bold uppercase text-sm tracking-wider transition-all shadow glow-red">
+                                Save Custom Configuration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 5: RACING MODES ================= -->
+        <div id="page-modes" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Competitive Disciplines</span>
+                    <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight mb-4">Choose Your Racing Mode</h1>
+                    <p class="text-titanium text-sm sm:text-base">From precision time attacks and underground street races to professional esports championships and high-speed police pursuits.</p>
+                </div>
+
+                <div id="modes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 6: CHAMPIONSHIPS & ESPORTS ================= -->
+        <div id="page-championships" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+                    <div>
+                        <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Pro Esports Arena</span>
+                        <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight">Championships & Tournaments</h1>
+                    </div>
+                    <!-- Countdown Timer Box -->
+                    <div class="mt-6 md:mt-0 glass-panel px-6 py-3 rounded-xl border border-white/10 flex items-center space-x-6">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-titanium block">Next Grand Prix Starts In</span>
+                            <div id="esports-countdown" class="font-heading font-bold text-xl text-racingred">03d : 14h : 22m : 45s</div>
+                        </div>
+                        <button onclick="showToast('Successfully registered for tournament!')" class="bg-racingred hover:bg-racingredhover text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase tracking-wider">Register Now</button>
+                    </div>
+                </div>
+
+                <!-- Active Tournaments List -->
+                <div class="space-y-6" id="tournaments-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 7: LEADERBOARD ================= -->
+        <div id="page-leaderboard" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Global Rankings</span>
+                        <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight">Hall of Legends</h1>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex gap-2" id="leaderboard-tabs">
+                        <button onclick="switchLeaderboardTab('global')" class="lb-tab bg-racingred text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase">Global</button>
+                        <button onclick="switchLeaderboardTab('weekly')" class="lb-tab bg-graphite text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase">Weekly</button>
+                        <button onclick="switchLeaderboardTab('drift')" class="lb-tab bg-graphite text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase">Drift Masters</button>
+                        <button onclick="switchLeaderboardTab('laps')" class="lb-tab bg-graphite text-titanium hover:text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase">Fastest Laps</button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl border border-white/10 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-white/10 text-xs text-titanium font-heading uppercase tracking-wider bg-graphite/50">
+                                    <th class="py-4 px-6">Rank</th>
+                                    <th class="py-4 px-6">Driver</th>
+                                    <th class="py-4 px-6">Country</th>
+                                    <th class="py-4 px-6">Favorite Car</th>
+                                    <th class="py-4 px-6">Wins / Races</th>
+                                    <th class="py-4 px-6 text-right">Rating / Points</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-table-body" class="divide-y divide-white/5 text-sm">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 8: PLAYER DASHBOARD ================= -->
+        <div id="page-dashboard" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <!-- User Profile Header Banner -->
+                <div class="glass-panel p-8 rounded-2xl border border-white/10 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center space-x-6">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80" alt="Avatar" class="w-24 h-24 rounded-full object-cover border-2 border-racingred glow-red">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-1">
+                                <h1 id="dash-username" class="font-heading text-3xl font-bold uppercase">Alex "Vortex" Mercer</h1>
+                                <span class="bg-racingred text-white text-xs px-2.5 py-0.5 rounded font-heading font-bold uppercase">VIP LVL 48</span>
+                            </div>
+                            <p class="text-titanium text-sm">Apex Syndicate Club Leader • Joined Jan 2024</p>
+                            <div class="mt-3 flex items-center space-x-4 text-xs text-titanium">
+                                <span>XP: <strong class="text-white">142,850 / 150,000</strong></span>
+                                <span>Win Rate: <strong class="text-white">78.4%</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="showToast('Profile editing mode activated!')" class="bg-graphite hover:bg-surface text-titanium hover:text-white px-4 py-2.5 rounded font-medium text-sm border border-white/10">Edit Profile</button>
+                        <button onclick="switchPage('garage')" class="bg-racingred hover:bg-racingredhover text-white px-5 py-2.5 rounded font-heading font-semibold text-sm uppercase tracking-wider">My Garage</button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                        <span class="text-xs text-titanium uppercase block mb-1">Total Races Completed</span>
+                        <div class="font-heading text-3xl font-bold">1,428</div>
+                        <span class="text-xs text-green-500 mt-2 block"><i class="fa-solid fa-arrow-up mr-1"></i> +14 this week</span>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                        <span class="text-xs text-titanium uppercase block mb-1">Total Wins</span>
+                        <div class="font-heading text-3xl font-bold text-racingred">1,120</div>
+                        <span class="text-xs text-titanium mt-2 block">78.4% Win Ratio</span>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                        <span class="text-xs text-titanium uppercase block mb-1">Best Lap Record</span>
+                        <div class="font-heading text-3xl font-bold">1:14.282</div>
+                        <span class="text-xs text-titanium mt-2 block">Neon City Circuit</span>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                        <span class="text-xs text-titanium uppercase block mb-1">Total Distance Driven</span>
+                        <div class="font-heading text-3xl font-bold">42,890 mi</div>
+                        <span class="text-xs text-titanium mt-2 block">Equiv. 1.7x Around Earth</span>
+                    </div>
+                </div>
+
+                <!-- Recent Race History -->
+                <div class="glass-panel p-8 rounded-2xl border border-white/10">
+                    <h3 class="font-heading text-xl font-bold uppercase mb-6 flex items-center justify-between">
+                        <span>Recent Race History</span>
+                        <span class="text-xs text-titanium font-normal">Last 5 Events</span>
+                    </h3>
+                    <div class="space-y-4" id="race-history-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 9: COMMUNITY & CLUBS ================= -->
+        <div id="page-community" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Driver Network</span>
+                        <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight">Racing Clubs & Social</h1>
+                    </div>
+                    <button onclick="showToast('Create Club modal opened!')" class="mt-4 md:mt-0 bg-racingred hover:bg-racingredhover text-white px-5 py-2.5 rounded font-heading font-semibold text-sm uppercase tracking-wider">Create Racing Club</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Featured Clubs -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <h3 class="font-heading text-xl font-bold uppercase mb-4">Top Ranked Clubs</h3>
+                        <div id="clubs-list" class="space-y-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Live Driver Chat / Streamers -->
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex flex-col h-[500px]">
+                        <h3 class="font-heading text-lg font-bold uppercase mb-4 flex items-center justify-between">
+                            <span>Global Driver Chat</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                        </h3>
+                        <div id="chat-messages" class="flex-grow overflow-y-auto space-y-3 pr-2 text-xs mb-4">
+                            <div class="bg-graphite/60 p-2.5 rounded border border-white/5">
+                                <span class="text-racingred font-bold">Vortex:</span> Anyone down for Canyon drift runs tonight?
+                            </div>
+                            <div class="bg-graphite/60 p-2.5 rounded border border-white/5">
+                                <span class="text-titanium font-bold">ElenaR:</span> Count me in. Testing the new Stage 3 V12.
+                            </div>
+                            <div class="bg-graphite/60 p-2.5 rounded border border-white/5">
+                                <span class="text-yellow-500 font-bold">SpeedKing:</span> GG to everyone in the Tokyo Grand Prix!
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input id="chat-input" type="text" placeholder="Type message to drivers..." class="flex-grow bg-graphite text-white px-3 py-2 rounded border border-white/10 text-xs focus:outline-none">
+                            <button onclick="sendChatMessage()" class="bg-racingred text-white px-4 py-2 rounded text-xs font-heading font-bold uppercase">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 10: NEWS & UPDATES ================= -->
+        <div id="page-news" class="page-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Editorial & Patch Notes</span>
+                    <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight mb-4">NITRO X Chronicle</h1>
+                    <p class="text-titanium text-sm sm:text-base">Stay updated with brand new car reveals, open-world map expansions, esports tournament calendars, and game patch notes.</p>
+                </div>
+
+                <div id="news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 11: ABOUT THE GAME ================= -->
+        <div id="page-about" class="page-section hidden">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                <div class="text-center">
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Our Vision</span>
+                    <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight mb-6">About NITRO X</h1>
+                    <p class="text-titanium text-lg leading-relaxed">
+                        NITRO X was forged by a passionate team of automotive engineers, physics simulation experts, and AAA game veterans. Our mission is to build the ultimate uncompromising racing platform for enthusiasts worldwide.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
+                    <div class="glass-panel p-8 rounded-2xl border border-white/10">
+                        <h3 class="font-heading text-2xl font-bold uppercase mb-4 text-racingred">Apex Physics Engine</h3>
+                        <p class="text-titanium text-sm leading-relaxed">
+                            Our proprietary physics pipeline simulates tire deformation, weight transfer, aerodynamic downforce, and surface friction at 1,000Hz. Every supercar behaves with absolute mechanical fidelity.
+                        </p>
+                    </div>
+                    <div class="glass-panel p-8 rounded-2xl border border-white/10">
+                        <h3 class="font-heading text-2xl font-bold uppercase mb-4 text-racingred">Cinematic Graphics</h3>
+                        <p class="text-titanium text-sm leading-relaxed">
+                            Powered by custom WebGL shaders and ray-traced reflections, NITRO X delivers breathtaking visual fidelity across desktop, tablet, and mobile devices without sacrificing framerates.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 12: SUPPORT & FAQ ================= -->
+        <div id="page-support" class="page-section hidden">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+                <div class="text-center">
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Help Center</span>
+                    <h1 class="font-heading text-4xl sm:text-6xl font-bold uppercase tracking-tight mb-4">Support & FAQ</h1>
+                    <p class="text-titanium text-sm">Got questions about game controls, account progression, or tournament rules? Find answers below.</p>
+                </div>
+
+                <div class="space-y-4" id="faq-accordion">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 13: LOGIN / AUTH ================= -->
+        <div id="page-login" class="page-section hidden">
+            <div class="max-w-md mx-auto px-4 py-24">
+                <div class="glass-panel p-8 rounded-2xl border border-white/10">
+                    <div class="text-center mb-8">
+                        <div class="w-12 h-12 rounded bg-racingred mx-auto flex items-center justify-center font-heading font-bold text-2xl italic tracking-tighter mb-3 glow-red">NX</div>
+                        <h2 class="font-heading text-2xl font-bold uppercase">Driver Authentication</h2>
+                        <p class="text-xs text-titanium mt-1">Sign in to sync your garage and leaderboard stats</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Email Address</label>
+                            <input type="email" value="driver@nitrox.gg" class="w-full bg-graphite text-white px-4 py-3 rounded border border-white/10 text-sm focus:outline-none focus:border-racingred">
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase tracking-wider text-titanium block mb-2 font-semibold">Password</label>
+                            <input type="password" value="••••••••••••" class="w-full bg-graphite text-white px-4 py-3 rounded border border-white/10 text-sm focus:outline-none focus:border-racingred">
+                        </div>
+                        <button onclick="handleLoginSuccess()" class="w-full bg-racingred hover:bg-racingredhover text-white py-3.5 rounded font-heading font-bold uppercase text-sm tracking-wider transition-all shadow glow-red mt-2">
+                            Access Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 14: SETTINGS ================= -->
+        <div id="page-settings" class="page-section hidden">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
+                <div>
+                    <span class="text-racingred font-heading text-sm uppercase tracking-widest block mb-2">Platform Customization</span>
+                    <h1 class="font-heading text-4xl font-bold uppercase tracking-tight">System Settings</h1>
+                </div>
+
+                <div class="glass-panel p-8 rounded-2xl border border-white/10 space-y-6">
+                    <div>
+                        <h3 class="font-heading text-lg font-bold uppercase mb-4 text-white">Graphics & Rendering</h3>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-titanium">Shadow Quality</span>
+                                <select class="bg-graphite text-white px-3 py-1.5 rounded border border-white/10 text-xs">
+                                    <option>Ultra (Ray-traced)</option>
+                                    <option>High</option>
+                                    <option>Medium</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-titanium">Motion Blur & Post-Processing</span>
+                                <input type="checkbox" checked class="accent-racingred w-4 h-4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/10">
+                        <h3 class="font-heading text-lg font-bold uppercase mb-4 text-white">Audio & Sound FX</h3>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-titanium">Engine Revs Volume</span>
+                                <input type="range" min="0" max="100" value="85" class="accent-racingred w-48">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-titanium">Tire Screeching SFX</span>
+                                <input type="range" min="0" max="100" value="90" class="accent-racingred w-48">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/10">
+                        <button onclick="showToast('Settings saved successfully!')" class="bg-racingred hover:bg-racingredhover text-white px-6 py-3 rounded font-heading font-bold uppercase text-xs tracking-wider">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-graphite/80 border-t border-white/10 py-16 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 rounded bg-racingred flex items-center justify-center font-heading font-bold text-lg italic tracking-tighter">NX</div>
+                    <span class="font-heading text-lg font-bold tracking-widest">NITRO X</span>
+                </div>
+                <p class="text-titanium text-xs leading-relaxed mb-4">The ultimate international multi-page racing platform. Built for speed, precision, and elite esports competition.</p>
+                <div class="flex space-x-4 text-titanium text-sm">
+                    <a href="#" class="hover:text-racingred transition-colors"><i class="fa-brands fa-discord"></i></a>
+                    <a href="#" class="hover:text-racingred transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" class="hover:text-racingred transition-colors"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" class="hover:text-racingred transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-heading text-sm font-bold uppercase tracking-wider mb-4 text-white">Platform</h4>
+                <ul class="space-y-2 text-xs text-titanium">
+                    <li><button onclick="switchPage('home')" class="hover:text-white">Home</button></li>
+                    <li><button onclick="switchPage('world')" class="hover:text-white">Game World</button></li>
+                    <li><button onclick="switchPage('collection')" class="hover:text-white">Car Showroom</button></li>
+                    <li><button onclick="switchPage('garage')" class="hover:text-white">Interactive Garage</button></li>
+                    <li><button onclick="switchPage('modes')" class="hover:text-white">Racing Modes</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-heading text-sm font-bold uppercase tracking-wider mb-4 text-white">Esports & Community</h4>
+                <ul class="space-y-2 text-xs text-titanium">
+                    <li><button onclick="switchPage('championships')" class="hover:text-white">Tournaments</button></li>
+                    <li><button onclick="switchPage('leaderboard')" class="hover:text-white">Global Leaderboard</button></li>
+                    <li><button onclick="switchPage('community')" class="hover:text-white">Racing Clubs</button></li>
+                    <li><button onclick="switchPage('news')" class="hover:text-white">News & Patch Notes</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-heading text-sm font-bold uppercase tracking-wider mb-4 text-white">Legal & Support</h4>
+                <ul class="space-y-2 text-xs text-titanium">
+                    <li><button onclick="switchPage('support')" class="hover:text-white">Support & FAQ</button></li>
+                    <li><button onclick="switchPage('about')" class="hover:text-white">About Game</button></li>
+                    <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-titanium">
+            <p>&copy; 2026 NITRO X Racing Entertainment. All rights reserved.</p>
+            <p class="mt-4 sm:mt-0">Designed with minimal luxury automotive aesthetic.</p>
+        </div>
+    </footer>
+
+    <!-- ================= FULLY PLAYABLE 3D RACING GAME MODAL ================= -->
+    <div id="game-modal" class="fixed inset-0 z-50 hidden bg-obsidian/95 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+        <div class="max-w-5xl w-full flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-racingred flex items-center justify-center font-heading font-bold text-base italic tracking-tighter">NX</div>
+                <div>
+                    <h3 class="font-heading font-bold text-lg uppercase">NITRO X: Apex Circuit Simulator</h3>
+                    <span class="text-xs text-titanium">Controls: W/Up = Accelerate | S/Down = Brake | A/D or Left/Right = Steer | Space = Nitro Boost</span>
+                </div>
+            </div>
+            <button onclick="closeGameModal()" class="text-titanium hover:text-white text-xl p-2"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="relative w-full max-w-5xl h-[550px] bg-graphite rounded-2xl overflow-hidden border border-white/20 shadow-2xl flex flex-col items-center justify-center">
+            <!-- Canvas for Racing Game -->
+            <canvas id="racing-game-canvas" class="w-full h-full block"></canvas>
+
+            <!-- HUD Overlay inside game -->
+            <div class="absolute top-6 left-6 flex space-x-6 pointer-events-none">
+                <div class="glass-panel px-4 py-2 rounded-lg border border-white/10 text-center">
+                    <span class="text-[10px] text-titanium uppercase block">Speed</span>
+                    <span id="hud-speed" class="font-heading font-bold text-2xl text-white">0</span> <span class="text-xs text-titanium">MPH</span>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg border border-white/10 text-center">
+                    <span class="text-[10px] text-titanium uppercase block">Lap Time</span>
+                    <span id="hud-time" class="font-heading font-bold text-2xl text-racingred">00:00.0</span>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg border border-white/10 text-center">
+                    <span class="text-[10px] text-titanium uppercase block">Nitro Boost</span>
+                    <div class="w-24 bg-surface rounded-full h-2 mt-2"><div id="hud-nitro" class="bg-racingred h-2 rounded-full" style="width: 100%"></div></div>
+                </div>
+            </div>
+
+            <!-- Start Game Overlay -->
+            <div id="game-start-overlay" class="absolute inset-0 bg-obsidian/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6">
+                <h2 class="font-heading text-4xl font-bold uppercase mb-3 text-white">Ready to Race?</h2>
+                <p class="text-titanium text-sm max-w-md mb-2">Use your keyboard to drive: <strong>W/S</strong> or <strong>Arrow Up/Down</strong> to throttle & brake, <strong>A/D</strong> or <strong>Arrow Left/Right</strong> to steer, and <strong>Spacebar</strong> for Nitro Boost!</p>
+                <button onclick="startRacingGameSession()" class="mt-4 bg-racingred hover:bg-racingredhover text-white px-8 py-4 rounded font-heading font-bold uppercase tracking-wider text-base shadow-xl glow-red">
+                    Start Engine & Launch
+                </button>
+            </div>
+
+            <!-- Finish Screen Overlay -->
+            <div id="game-finish-overlay" class="absolute inset-0 bg-obsidian/90 backdrop-blur-md hidden flex flex-col items-center justify-center text-center p-6">
+                <div class="w-16 h-16 rounded-full bg-racingred/20 text-racingred flex items-center justify-center text-3xl mb-4 glow-red">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="font-heading text-3xl font-bold uppercase mb-2">Race Finished!</h2>
+                <p id="finish-time-text" class="text-titanium text-sm mb-6">Your Lap Time: 1:18.42s • Rewards: +1,500 XP & $10,000</p>
+                <button onclick="restartRacingGame()" class="bg-racingred hover:bg-racingredhover text-white px-6 py-3 rounded font-heading font-bold uppercase tracking-wider text-sm">
+                    Race Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= CAR COMPARE MODAL ================= -->
+    <div id="compare-modal" class="fixed inset-0 z-50 hidden bg-obsidian/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full glass-panel p-8 rounded-2xl border border-white/10 relative">
+            <button onclick="closeCompareModal()" class="absolute top-6 right-6 text-titanium hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="font-heading text-2xl font-bold uppercase mb-6">Side-by-Side Car Comparison</h2>
+            <div class="grid grid-cols-2 gap-8" id="compare-content">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT APP LOGIC ================= -->
+    <script>
+        // Data Store
+        const carsData = [
+            { id: 'phantom', name: 'Apex V12 Phantom', category: 'Hypercars', speed: 248, accel: '2.1s', handling: '94 G', braking: '100ft', price: '$2,450,000', img: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=800&q=80', desc: 'The pinnacle of aerodynamic engineering. Quad-turbo V12 engine.' },
+            { id: 'venom', name: 'Vortex GT9', category: 'Supercars', speed: 235, accel: '2.4s', handling: '92 G', braking: '105ft', price: '$1,850,000', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80', desc: 'Sleek Italian design meets ferocious track acceleration.' },
+            { id: 'spectre', name: 'Spectre Electric R', category: 'Electric', speed: 220, accel: '1.9s', handling: '96 G', braking: '98ft', price: '$1,950,000', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80', desc: 'Instant quad-motor torque delivering mind-bending 0-60 launches.' },
+            { id: 'drift', name: 'Drift King Silvia S15', category: 'Drift', speed: 195, accel: '3.6s', handling: '98 G', braking: '115ft', price: '$350,000', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80', desc: 'Custom angle kit, hydraulic e-brake, and forged inline-6 turbo.' },
+            { id: 'classic', name: '1970 Daytona Z', category: 'Classic', speed: 185, accel: '4.2s', handling: '88 G', braking: '130ft', price: '$850,000', img: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80', desc: 'Restomod classic with modern supercharged V8 power.' },
+            { id: 'sports', name: 'Apex ClubSport R', category: 'Sports', speed: 205, accel: '3.1s', handling: '95 G', braking: '102ft', price: '$420,000', img: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80', desc: 'Balanced track machine built for cornering agility.' }
+        ];
+
+        const worldsData = [
+            { name: 'Neon City', desc: 'Rain-soaked futuristic city streets, towering skyscrapers, and tight 90-degree corners at night.', diff: 'Hard', weather: 'Rain / Night', img: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=800&q=80', modes: 'Street Racing, Police Chase' },
+            { name: 'Desert Run', desc: 'Endless scorching asphalt highways winding through golden dunes and canyons.', diff: 'Medium', weather: 'Sunny / Heatwave', img: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', modes: 'Drag Racing, Time Attack' },
+            { name: 'Mountain Pass', desc: 'Treacherous alpine hairpins, elevation changes, and breathtaking cliffside drops.', diff: 'Expert', weather: 'Snow / Fog', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80', modes: 'Drift Masters, Career' },
+            { name: 'Coastal Drive', desc: 'Scenic seaside highways with sweeping high-speed curves and ocean spray.', diff: 'Easy', weather: 'Sunset / Clear', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', modes: 'Free Roam, Multiplayer' },
+            { name: 'Industrial Zone', desc: 'Gritty underground shipping yards, container mazes, and raw industrial atmosphere.', diff: 'Hard', weather: 'Overcast / Smog', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80', modes: 'Street Racing, Drag' },
+            { name: 'Grand Circuit', desc: 'Professional FIA-grade racing track with high-speed straights and chicane complexes.', diff: 'Medium', weather: 'Day / Clear', img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80', modes: 'Esports Championships, Time Attack' }
+        ];
+
+        const modesData = [
+            { title: 'Career Mode', desc: 'Progress through 5 racing leagues, sign with sponsors, and unlock legendary hypercars.', diff: 'Progressive', reward: '$500,000 + Cars', img: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Street Racing', desc: 'Compete in high-stakes underground city races against rival crews.', diff: 'Hard', reward: '$120,000 / Win', img: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Drift Masters', desc: 'Earn massive multiplier points through precision controlled drifting across mountain passes.', diff: 'Expert', reward: 'Exclusive Rims & XP', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Time Attack', desc: 'Battle against ghosts and set world-record lap times on global circuits.', diff: 'Medium', reward: 'Global Leaderboard Rank', img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Drag Racing', desc: 'Test raw acceleration and lightning-fast gear shifts on quarter-mile strips.', diff: 'Easy', reward: '$80,000 Cash', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Free Roam', desc: 'Explore the entire open-world map with zero restrictions, speed cameras, and secret jumps.', diff: 'Relaxed', reward: 'Discovery XP', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Multiplayer', desc: 'Real-time competitive matchmaking with up to 16 players per grid.', diff: 'Competitive', reward: 'Pro Esports Points', img: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Police Chase', desc: 'Evade high-speed pursuit vehicles and spike strips through heavy civilian traffic.', diff: 'Extreme', reward: 'Bounty & Badges', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80' }
+        ];
+
+        const tournamentsData = [
+            { title: 'Tokyo Neon Championship 2026', date: 'May 18, 2026', pool: '$100,000 Prize Pool', status: 'Registration Open', format: 'Time Attack & Elimination' },
+            { title: 'Alpine Frost Winter Cup', date: 'June 02, 2026', pool: '$75,000 Prize Pool', status: 'Coming Soon', format: 'Drift & Grip Hybrid' },
+            { title: 'Global Hypercar Invitational', date: 'June 20, 2026', pool: '$250,000 Grand Prize', status: 'Invite Only', format: 'Multi-Stage Grand Prix' }
+        ];
+
+        const leaderboardData = [
+            { rank: 1, name: 'Vortex', country: '🇯🇵', car: 'Apex V12 Phantom', wins: '412 / 480', rating: '9,980 PTS' },
+            { rank: 2, name: 'ElenaR', country: '🇩🇪', car: 'Vortex GT9', wins: '389 / 440', rating: '9,740 PTS' },
+            { rank: 3, name: 'SpeedKing', country: '🇺🇸', car: 'Spectre Electric R', wins: '356 / 410', rating: '9,510 PTS' },
+            { rank: 4, name: 'DriftMaster', country: '🇬🇧', car: 'Silvia S15', wins: '320 / 380', rating: '9,230 PTS' },
+            { rank: 5, name: 'ApexGhost', country: '🇫🇷', car: 'Apex ClubSport', wins: '298 / 350', rating: '8,990 PTS' }
+        ];
+
+        const clubsData = [
+            { name: 'Apex Syndicate', members: '128 Drivers', rank: '#1 Global', leader: 'Alex "Vortex" Mercer', desc: 'Elite professional club dominating global championships.' },
+            { name: 'Midnight Drifters', members: '94 Drivers', rank: '#3 Global', leader: 'Marcus Thorne', desc: 'Specializing in high-speed mountain drift tandems.' },
+            { name: 'V12 Brotherhood', members: '110 Drivers', rank: '#5 Global', leader: 'Elena Rostova', desc: 'Pure naturally aspirated V12 engine enthusiasts.' }
+        ];
+
+        const newsData = [
+            { title: 'Season 4: Apex Overdrive Update Released', date: 'May 1, 2026', cat: 'Game Update', img: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=600&q=80', excerpt: 'Discover new tracks, dynamic weather physics, and 3 new hypercars.' },
+            { title: 'The Italian V12 Reveal: Phantom S', date: 'April 24, 2026', cat: 'Car Announcement', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80', excerpt: 'Pushing 1,150 horsepower with active aero and titanium exhaust.' },
+            { title: 'Esports World Championship Announced', date: 'April 15, 2026', cat: 'Esports', img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=600&q=80', excerpt: 'Compete for a $500,000 total prize pool in the upcoming summer tournament.' }
+        ];
+
+        const faqData = [
+            { q: 'How do I unlock new hypercars?', a: 'Progress through Career Mode, complete weekly missions, or earn championship prize money to purchase vehicles from the showroom.' },
+            { q: 'Are the physics arcade or simulation?', a: 'NITRO X uses a hybrid Apex Physics Engine featuring realistic weight transfer, tire grip coefficients, and customizable assists.' },
+            { q: 'Can I play with friends online?', a: 'Yes! Join or create a Racing Club, participate in Multiplayer lobbies, or challenge friends in custom time attack rooms.' }
+        ];
+
+        // Page Navigation
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('page-' + pageId);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                if (btn.getAttribute('data-page') === pageId) {
+                    btn.classList.add('text-white', 'border-b-2', 'border-racingred');
+                } else {
+                    btn.classList.remove('text-white', 'border-b-2', 'border-racingred');
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Toast Notifications
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'glass-panel px-5 py-3 rounded-xl border border-white/20 text-xs font-semibold text-white shadow-xl flex items-center space-x-3 transform translate-y-4 opacity-0 transition-all duration-300';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-racingred"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0'); }, 50);
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize Dynamic Content
+        function initApp() {
+            // Home Popular Cars
+            const homeGrid = document.getElementById('home-cars-grid');
+            if (homeGrid) {
+                homeGrid.innerHTML = carsData.slice(0, 3).map(car => `
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 group">
+                        <div class="relative h-56 overflow-hidden">
+                            <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <span class="absolute top-4 left-4 bg-obsidian/80 backdrop-blur text-xs font-heading font-bold px-3 py-1 rounded text-titanium border border-white/10 uppercase">${car.category}</span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-heading text-xl font-bold uppercase mb-1">${car.name}</h3>
+                            <p class="text-xs text-titanium mb-4">${car.desc}</p>
+                            <div class="flex items-center justify-between text-xs font-semibold text-titanium pt-4 border-t border-white/10">
+                                <span>Top Speed: <strong class="text-white">${car.speed} MPH</strong></span>
+                                <button onclick="switchPage('garage')" class="text-racingred hover:text-white flex items-center space-x-1"><span>Customize</span><i class="fa-solid fa-arrow-right text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Game Worlds Grid
+            const worldsGrid = document.getElementById('worlds-grid');
+            if (worldsGrid) {
+                worldsGrid.innerHTML = worldsData.map(w => `
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 group flex flex-col justify-between">
+                        <div>
+                            <div class="relative h-52 overflow-hidden">
+                                <img src="${w.img}" alt="${w.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <span class="absolute top-4 left-4 bg-obsidian/80 backdrop-blur text-xs font-heading font-bold px-3 py-1 rounded text-titanium border border-white/10 uppercase">${w.diff}</span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="font-heading text-2xl font-bold uppercase mb-2">${w.name}</h3>
+                                <p class="text-titanium text-xs mb-4 leading-relaxed">${w.desc}</p>
+                                <div class="space-y-2 text-xs text-titanium">
+                                    <div class="flex justify-between"><span>Weather:</span><strong class="text-white">${w.weather}</strong></div>
+                                    <div class="flex justify-between"><span>Modes:</span><strong class="text-white">${w.modes}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <button onclick="openGameModal()" class="w-full bg-graphite hover:bg-racingred text-white py-2.5 rounded font-heading font-bold text-xs uppercase tracking-wider transition-all border border-white/10">
+                                Enter World
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Showroom Cars Grid
+            renderShowroomCars(carsData);
+
+            // Garage Select Dropdown
+            const garageSelect = document.getElementById('garage-car-select');
+            if (garageSelect) {
+                garageSelect.innerHTML = carsData.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            }
+
+            // Racing Modes Grid
+            const modesGrid = document.getElementById('modes-grid');
+            if (modesGrid) {
+                modesGrid.innerHTML = modesData.map(m => `
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 group flex flex-col justify-between">
+                        <div>
+                            <div class="relative h-44 overflow-hidden">
+                                <img src="${m.img}" alt="${m.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <span class="absolute top-4 left-4 bg-obsidian/80 backdrop-blur text-xs font-heading font-bold px-3 py-1 rounded text-titanium border border-white/10 uppercase">${m.diff}</span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="font-heading text-xl font-bold uppercase mb-2">${m.title}</h3>
+                                <p class="text-titanium text-xs mb-4 leading-relaxed">${m.desc}</p>
+                                <div class="text-xs text-titanium mb-2">Reward: <strong class="text-racingred">${m.reward}</strong></div>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <button onclick="openGameModal()" class="w-full bg-racingred hover:bg-racingredhover text-white py-2.5 rounded font-heading font-bold text-xs uppercase tracking-wider transition-all shadow">
+                                Play Mode
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Tournaments List
+            const tList = document.getElementById('tournaments-list');
+            if (tList) {
+                tList.innerHTML = tournamentsData.map(t => `
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="bg-racingred/20 text-racingred px-2.5 py-0.5 rounded text-xs font-heading font-bold uppercase">${t.status}</span>
+                                <span class="text-xs text-titanium"><i class="fa-regular fa-calendar mr-1"></i> ${t.date}</span>
+                            </div>
+                            <h3 class="font-heading text-2xl font-bold uppercase mb-1">${t.title}</h3>
+                            <p class="text-xs text-titanium">Format: ${t.format} • Prize Pool: <strong class="text-white">${t.pool}</strong></p>
+                        </div>
+                        <button onclick="showToast('Successfully registered for tournament!')" class="bg-racingred hover:bg-racingredhover text-white px-6 py-3 rounded font-heading font-bold text-xs uppercase tracking-wider transition-all shadow glow-red whitespace-nowrap">
+                            Register Team
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Leaderboard Table
+            renderLeaderboard('global');
+
+            // Dashboard Race History
+            const historyList = document.getElementById('race-history-list');
+            if (historyList) {
+                historyList.innerHTML = [
+                    { track: 'Neon City Grand Circuit', car: 'Apex V12 Phantom', pos: '1st Place', time: '1:14.28', reward: '+$25,000' },
+                    { track: 'Mountain Pass Drift Sprint', car: 'Silvia S15', pos: '1st Place', time: '2:05.10', reward: '+$18,000' },
+                    { track: 'Desert Run Time Attack', car: 'Spectre Electric R', pos: '2nd Place', time: '1:31.90', reward: '+$10,000' },
+                    { track: 'Industrial Zone Street Race', car: 'Vortex GT9', pos: '1st Place', time: '1:19.45', reward: '+$22,000' }
+                ].map(h => `
+                    <div class="bg-graphite/60 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <div>
+                            <strong class="text-white text-sm font-heading block">${h.track}</strong>
+                            <span class="text-titanium">Car: ${h.car}</span>
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <span class="text-green-400 font-bold uppercase">${h.pos}</span>
+                            <span class="text-titanium">Time: ${h.time}</span>
+                            <span class="text-racingred font-bold">${h.reward}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Clubs List
+            const clubsList = document.getElementById('clubs-list');
+            if (clubsList) {
+                clubsList.innerHTML = clubsData.map(c => `
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-1">
+                                <h4 class="font-heading text-lg font-bold uppercase">${c.name}</h4>
+                                <span class="bg-racingred text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase">${c.rank}</span>
+                            </div>
+                            <p class="text-xs text-titanium mb-2">${c.desc}</p>
+                            <span class="text-[10px] text-titanium">Leader: ${c.leader} • Members: ${c.members}</span>
+                        </div>
+                        <button onclick="showToast('Join request sent to club leader!')" class="bg-graphite hover:bg-surface text-white border border-white/10 px-4 py-2 rounded text-xs font-heading font-bold uppercase transition-all">Join Club</button>
+                    </div>
+                `).join('');
+            }
+
+            // News Grid
+            const newsGrid = document.getElementById('news-grid');
+            if (newsGrid) {
+                newsGrid.innerHTML = newsData.map(n => `
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 group flex flex-col justify-between">
+                        <div>
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="${n.img}" alt="${n.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <span class="absolute top-4 left-4 bg-obsidian/80 backdrop-blur text-xs font-heading font-bold px-3 py-1 rounded text-titanium border border-white/10 uppercase">${n.cat}</span>
+                            </div>
+                            <div class="p-6">
+                                <span class="text-[10px] text-titanium block mb-2">${n.date}</span>
+                                <h3 class="font-heading text-xl font-bold uppercase mb-2">${n.title}</h3>
+                                <p class="text-titanium text-xs leading-relaxed mb-4">${n.excerpt}</p>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <button onclick="showToast('Loading full article editorial...')" class="text-xs font-semibold text-racingred hover:text-white flex items-center space-x-2">
+                                <span>Read Full Article</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // FAQ Accordion
+            const faqContainer = document.getElementById('faq-accordion');
+            if (faqContainer) {
+                faqContainer.innerHTML = faqData.map(f => `
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                        <h3 class="font-heading font-bold text-base uppercase mb-2 text-white flex items-center justify-between">
+                            <span>${f.q}</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-titanium"></i>
+                        </h3>
+                        <p class="text-titanium text-xs leading-relaxed">${f.a}</p>
+                    </div>
+                `).join('');
+            }
+
+            // Init Three.js Garage Viewer
+            initGarageViewer();
+        }
+
+        function renderShowroomCars(list) {
+            const grid = document.getElementById('showroom-grid');
+            if (!grid) return;
+            grid.innerHTML = list.map(car => `
+                <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 group flex flex-col justify-between">
+                    <div>
+                        <div class="relative h-56 overflow-hidden">
+                            <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <span class="absolute top-4 left-4 bg-obsidian/80 backdrop-blur text-xs font-heading font-bold px-3 py-1 rounded text-titanium border border-white/10 uppercase">${car.category}</span>
+                            <span class="absolute bottom-4 right-4 bg-racingred text-white text-xs font-heading font-bold px-3 py-1 rounded shadow">${car.price}</span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-heading text-xl font-bold uppercase mb-1">${car.name}</h3>
+                            <p class="text-xs text-titanium mb-4">${car.desc}</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-titanium pt-4 border-t border-white/10">
+                                <span>Speed: <strong class="text-white">${car.speed} MPH</strong></span>
+                                <span>0-60: <strong class="text-white">${car.accel}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0 flex gap-2">
+                        <button onclick="switchPage('garage'); selectGarageCar('${car.id}');" class="flex-1 bg-racingred hover:bg-racingredhover text-white py-2.5 rounded font-heading font-bold text-xs uppercase tracking-wider transition-all">
+                            Customize in Garage
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCars(cat) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.textContent.trim() === cat) {
+                    btn.classList.remove('bg-graphite', 'text-titanium');
+                    btn.classList.add('bg-racingred', 'text-white');
+                } else {
+                    btn.classList.remove('bg-racingred', 'text-white');
+                    btn.classList.add('bg-graphite', 'text-titanium');
+                }
+            });
+            if (cat === 'All') {
+                renderShowroomCars(carsData);
+            } else {
+                renderShowroomCars(carsData.filter(c => c.category === cat));
+            }
+        }
+
+        function renderLeaderboard(type) {
+            const tbody = document.getElementById('leaderboard-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = leaderboardData.map(l => `
+                <tr class="hover:bg-graphite/40 transition-colors">
+                    <td class="py-4 px-6 font-heading font-bold text-racingred">#${l.rank}</td>
+                    <td class="py-4 px-6 font-medium text-white flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+                        <span>${l.name}</span>
+                    </td>
+                    <td class="py-4 px-6 text-xl">${l.country}</td>
+                    <td class="py-4 px-6 text-titanium">${l.car}</td>
+                    <td class="py-4 px-6 text-titanium">${l.wins}</td>
+                    <td class="py-4 px-6 text-right font-heading font-bold text-white">${l.rating}</td>
+                </tr>
+            `).join('');
+        }
+
+        function switchLeaderboardTab(tab) {
+            document.querySelectorAll('.lb-tab').forEach(b => {
+                b.classList.remove('bg-racingred', 'text-white');
+                b.classList.add('bg-graphite', 'text-titanium');
+            });
+            event.target.classList.remove('bg-graphite', 'text-titanium');
+            event.target.classList.add('bg-racingred', 'text-white');
+            renderLeaderboard(tab);
+        }
+
+        // Three.js Garage Viewer Setup
+        let garageScene, garageCamera, garageRenderer, garageCarMesh;
+        function initGarageViewer() {
+            const container = document.getElementById('garage-canvas');
+            if (!container) return;
+            const width = container.clientWidth || 600;
+            const height = container.clientHeight || 380;
+
+            garageScene = new THREE.Scene();
+            garageCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            garageCamera.position.set(0, 3, 7);
+            garageCamera.lookAt(0, 0, 0);
+
+            garageRenderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+            garageRenderer.setSize(width, height);
+            garageRenderer.setPixelRatio(window.devicePixelRatio);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            garageScene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xe63935, 2.5);
+            dirLight.position.set(5, 10, 7);
+            garageScene.add(dirLight);
+
+            const blueLight = new THREE.DirectionalLight(0x3b82f6, 1.5);
+            blueLight.position.set(-5, -5, -5);
+            garageScene.add(blueLight);
+
+            // Create a stylized futuristic 3D car model using basic geometries
+            const carGroup = new THREE.Group();
+
+            // Body
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xe63935, roughness: 0.2, metalness: 0.9 });
+            const bodyGeo = new THREE.BoxGeometry(2.4, 0.6, 4.2);
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.4;
+            carGroup.add(body);
+
+            // Cabin / Roof
+            const cabinMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.9 });
+            const cabinGeo = new THREE.BoxGeometry(1.8, 0.5, 2.0);
+            const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+            cabin.position.set(0, 0.85, -0.2);
+            carGroup.add(cabin);
+
+            // Wheels
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 });
+            const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 32);
+            wheelGeo.rotateZ(Math.PI / 2);
+
+            const w1 = new THREE.Mesh(wheelGeo, wheelMat);
+            w1.position.set(1.2, 0.3, 1.4);
+            carGroup.add(w1);
+
+            const w2 = new THREE.Mesh(wheelGeo, wheelMat);
+            w2.position.set(-1.2, 0.3, 1.4);
+            carGroup.add(w2);
+
+            const w3 = new THREE.Mesh(wheelGeo, wheelMat);
+            w3.position.set(1.2, 0.3, -1.4);
+            carGroup.add(w3);
+
+            const w4 = new THREE.Mesh(wheelGeo, wheelMat);
+            w4.position.set(-1.2, 0.3, -1.4);
+            carGroup.add(w4);
+
+            garageCarMesh = carGroup;
+            garageScene.add(garageCarMesh);
+
+            // Mouse rotation handlers
+            let isDragging = false;
+            let prevMouseX = 0;
+
+            container.addEventListener('mousedown', (e) => { isDragging = true; prevMouseX = e.clientX; });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging || !garageCarMesh) return;
+                const deltaX = e.clientX - prevMouseX;
+                garageCarMesh.rotation.y += deltaX * 0.01;
+                prevMouseX = e.clientX;
+            });
+
+            // Touch events for mobile
+            container.addEventListener('touchstart', (e) => { isDragging = true; prevMouseX = e.touches[0].clientX; });
+            window.addEventListener('touchend', () => { isDragging = false; });
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging || !garageCarMesh) return;
+                const deltaX = e.touches[0].clientX - prevMouseX;
+                garageCarMesh.rotation.y += deltaX * 0.01;
+                prevMouseX = e.touches[0].clientX;
+            });
+
+            animateGarage();
+        }
+
+        function animateGarage() {
+            requestAnimationFrame(animateGarage);
+            if (garageCarMesh && !document.getElementById('page-garage').classList.contains('hidden')) {
+                garageCarMesh.rotation.y += 0.005; // Gentle automatic 360 spin
+            }
+            if (garageRenderer && garageScene && garageCamera) {
+                garageRenderer.render(garageScene, garageCamera);
+            }
+        }
+
+        function selectGarageCar(carId) {
+            const car = carsData.find(c => c.id === carId);
+            if (!car) return;
+            document.getElementById('active-car-name').textContent = car.name;
+            document.getElementById('active-car-category').textContent = car.category + ' Class';
+            document.getElementById('stat-speed').textContent = car.speed + ' MPH';
+            document.getElementById('stat-accel').textContent = car.accel + ' (0-60)';
+            document.getElementById('stat-handling').textContent = car.handling;
+            document.getElementById('stat-braking').textContent = car.braking;
+            showToast(`Loaded ${car.name} into virtual bay`);
+        }
+
+        function setCarColor(colorHex) {
+            if (garageCarMesh) {
+                garageCarMesh.children[0].material.color.set(colorHex);
+                showToast('Body paint color updated!');
+            }
+        }
+
+        // Side-by-side Car Comparison Modal
+        function compareCarsModal() {
+            const modal = document.getElementById('compare-modal');
+            const content = document.getElementById('compare-content');
+            const c1 = carsData[0];
+            const c2 = carsData[1];
+            content.innerHTML = `
+                <div class="glass-panel p-6 rounded-xl border border-white/10 text-center">
+                    <img src="${c1.img}" alt="${c1.name}" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h3 class="font-heading font-bold text-xl uppercase mb-2">${c1.name}</h3>
+                    <p class="text-xs text-titanium mb-4">${c1.price}</p>
+                    <div class="space-y-2 text-xs text-left">
+                        <div class="flex justify-between"><span>Top Speed:</span><strong>${c1.speed} MPH</strong></div>
+                        <div class="flex justify-between"><span>0-60 Acceleration:</span><strong>${c1.accel}</strong></div>
+                        <div class="flex justify-between"><span>Handling:</span><strong>${c1.handling}</strong></div>
+                        <div class="flex justify-between"><span>Braking:</span><strong>${c1.braking}</strong></div>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border border-white/10 text-center">
+                    <img src="${c2.img}" alt="${c2.name}" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h3 class="font-heading font-bold text-xl uppercase mb-2">${c2.name}</h3>
+                    <p class="text-xs text-titanium mb-4">${c2.price}</p>
+                    <div class="space-y-2 text-xs text-left">
+                        <div class="flex justify-between"><span>Top Speed:</span><strong>${c2.speed} MPH</strong></div>
+                        <div class="flex justify-between"><span>0-60 Acceleration:</span><strong>${c2.accel}</strong></div>
+                        <div class="flex justify-between"><span>Handling:</span><strong>${c2.handling}</strong></div>
+                        <div class="flex justify-between"><span>Braking:</span><strong>${c2.braking}</strong></div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeCompareModal() {
+            document.getElementById('compare-modal').classList.add('hidden');
+        }
+
+        // Authentication simulation
+        function handleLoginSuccess() {
+            showToast('Successfully signed in as Alex Mercer!');
+            document.getElementById('nav-user-label').textContent = 'Alex Mercer';
+            switchPage('dashboard');
+        }
+
+        // Chat simulation
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            if (!input.value.trim()) return;
+            const msg = document.createElement('div');
+            msg.className = 'bg-graphite/60 p-2.5 rounded border border-white/5';
+            msg.innerHTML = `<span class="text-racingred font-bold">You:</span> ${input.value}`;
+            chatMessages.appendChild(msg);
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ================= FULLY PLAYABLE 3D/CANVAS RACING GAME =================
+        let gameActive = false;
+        let gameAnimationId = null;
+        let gameCanvas, gameCtx;
+        let carPos = { x: 400, y: 420, speed: 0, maxSpeed: 12, angle: 0 };
+        let keys = {};
+        let obstacles = [];
+        let gameStartTime = 0;
+        let nitroAmount = 100;
+        let gameScore = 0;
+
+        function openGameModal() {
+            document.getElementById('game-modal').classList.remove('hidden');
+            document.getElementById('game-start-overlay').classList.remove('hidden');
+            document.getElementById('game-finish-overlay').classList.add('hidden');
+            initRacingGameCanvas();
+        }
+
+        function closeGameModal() {
+            document.getElementById('game-modal').classList.add('hidden');
+            gameActive = false;
+            if (gameAnimationId) cancelAnimationFrame(gameAnimationId);
+        }
+
+        function initRacingGameCanvas() {
+            gameCanvas = document.getElementById('racing-game-canvas');
+            if (!gameCanvas) return;
+            gameCtx = gameCanvas.getContext('2d');
+            gameCanvas.width = gameCanvas.parentElement.clientWidth || 900;
+            gameCanvas.height = gameCanvas.parentElement.clientHeight || 520;
+
+            window.addEventListener('keydown', (e) => {
+                keys[e.code] = true;
+                if(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                    e.preventDefault(); // Prevent page scrolling while playing
+                }
+            });
+            window.addEventListener('keyup', (e) => {
+                keys[e.code] = false;
+            });
+        }
+
+        function startRacingGameSession() {
+            document.getElementById('game-start-overlay').classList.add('hidden');
+            gameActive = true;
+            gameStartTime = Date.now();
+            carPos = { x: gameCanvas.width / 2, y: gameCanvas.height - 100, speed: 0, maxSpeed: 14, angle: 0 };
+            obstacles = [];
+            nitroAmount = 100;
+            gameScore = 0;
+
+            for (let i = 0; i < 5; i++) {
+                obstacles.push({
+                    x: Math.random() * (gameCanvas.width - 200) + 100,
+                    y: -i * 200 - 150,
+                    width: 50,
+                    height: 90,
+                    speed: 4 + Math.random() * 3
+                });
+            }
+
+            runGameLoop();
+        }
+
+        function runGameLoop() {
+            if (!gameActive) return;
+
+            // Keyboard Physics Inputs
+            if (keys['ArrowUp'] || keys['KeyW']) {
+                if (carPos.speed < carPos.maxSpeed) carPos.speed += 0.25;
+            } else if (keys['ArrowDown'] || keys['KeyS']) {
+                if (carPos.speed > -4) carPos.speed -= 0.35;
+            } else {
+                carPos.speed *= 0.96; // Natural deceleration
+            }
+
+            if (keys['ArrowLeft'] || keys['KeyA']) {
+                carPos.x -= 7;
+            }
+            if (keys['ArrowRight'] || keys['KeyD']) {
+                carPos.x += 7;
+            }
+
+            // Nitro Boost (Spacebar)
+            if (keys['Space'] && nitroAmount > 0) {
+                carPos.maxSpeed = 24;
+                nitroAmount -= 1.5;
+            } else {
+                carPos.maxSpeed = 14;
+                if (nitroAmount < 100) nitroAmount += 0.15;
+            }
+
+            // Screen Boundaries
+            if (carPos.x < 150) carPos.x = 150;
+            if (carPos.x > gameCanvas.width - 150) carPos.x = gameCanvas.width - 150;
+
+            // Obstacles logic
+            obstacles.forEach(obs => {
+                obs.y += carPos.speed + obs.speed;
+                if (obs.y > gameCanvas.height + 100) {
+                    obs.y = -200 - Math.random() * 200;
+                    obs.x = Math.random() * (gameCanvas.width - 300) + 150;
+                    gameScore += 100;
+                }
+
+                if (Math.abs(carPos.x - obs.x) < 35 && Math.abs(carPos.y - obs.y) < 70) {
+                    carPos.speed = 2;
+                    nitroAmount = Math.max(0, nitroAmount - 25);
+                }
+            });
+
+            // Render Frame
+            gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+            // Road Asphalt
+            gameCtx.fillStyle = '#111111';
+            gameCtx.fillRect(100, 0, gameCanvas.width - 200, gameCanvas.height);
+
+            // Red Side Barriers
+            gameCtx.fillStyle = '#E63935';
+            gameCtx.fillRect(95, 0, 8, gameCanvas.height);
+            gameCtx.fillRect(gameCanvas.width - 103, 0, 8, gameCanvas.height);
+
+            // Center Dashes
+            gameCtx.fillStyle = '#FFFFFF';
+            const dashOffset = (Date.now() * 0.5 * (carPos.speed + 2)) % 60;
+            for (let y = -60 + dashOffset; y < gameCanvas.height; y += 60) {
+                gameCtx.fillRect(gameCanvas.width / 2 - 4, y, 8, 30);
+            }
+
+            // Draw Obstacles
+            obstacles.forEach(obs => {
+                gameCtx.fillStyle = '#E63935';
+                gameCtx.beginPath();
+                gameCtx.roundRect(obs.x - 25, obs.y - 45, 50, 90, 8);
+                gameCtx.fill();
+                gameCtx.fillStyle = '#090909';
+                gameCtx.fillRect(obs.x - 20, obs.y - 20, 40, 25);
+            });
+
+            // Draw Player Car
+            gameCtx.fillStyle = '#FFFFFF';
+            gameCtx.beginPath();
+            gameCtx.roundRect(carPos.x - 28, carPos.y - 50, 56, 100, 10);
+            gameCtx.fill();
+            gameCtx.fillStyle = '#090909';
+            gameCtx.fillRect(carPos.x - 22, carPos.y - 25, 44, 30);
+
+            // Update HUD UI
+            document.getElementById('hud-speed').textContent = Math.round(carPos.speed * 15);
+            const elapsed = ((Date.now() - gameStartTime) / 1000).toFixed(1);
+            document.getElementById('hud-time').textContent = elapsed + 's';
+            document.getElementById('hud-nitro').style.width = nitroAmount + '%';
+
+            if (gameScore >= 2500) {
+                gameActive = false;
+                document.getElementById('finish-time-text').textContent = `Lap Time: ${elapsed}s • Score: ${gameScore} PTS • Rewards: +2,500 XP & $30,000`;
+                document.getElementById('game-finish-overlay').classList.remove('hidden');
+                return;
+            }
+
+            gameAnimationId = requestAnimationFrame(runGameLoop);
+        }
+
+        function restartRacingGame() {
+            document.getElementById('game-finish-overlay').classList.add('hidden');
+            startRacingGameSession();
+        }
+
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
